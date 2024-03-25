@@ -1,27 +1,27 @@
 import { Repo, DocHandle, type AnyDocumentId } from '@automerge/automerge-repo';
 
-import { AutomergeDocHandleState } from '../doc';
+import { AutomergeDocState } from '../doc';
 
 export class AutomergeRepoState<T> {
     #repo: Repo
-    #handles: { [id: string]: AutomergeDocHandleState<T> } = $state({})
+    #docs: { [id: string]: AutomergeDocState<T> } = $state({})
 
     constructor(config: ConstructorParameters<typeof Repo>[0]) {
         this.#repo = new Repo(config)
         this.#repo.on("document", ({ handle }) => {
-            this.#handles[handle.documentId] = new AutomergeDocHandleState(handle);
+            this.#docs[handle.documentId] = new AutomergeDocState(handle);
         });
         this.#repo.on("delete-document", ({ documentId }) => {
-            delete this.#handles[documentId];
+            delete this.#docs[documentId];
         });
     }
 
-    get handles() {
-        return Object.values(this.#handles);
+    get docs() {
+        return Object.values(this.#docs);
     }
 
     doc(documentId: string) {
-        return this.#handles[documentId];
+        return this.#docs[documentId];
     }
 
     clone(clonedHandle: DocHandle<T>) {
@@ -29,7 +29,7 @@ export class AutomergeRepoState<T> {
     }
     create(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
-        return new AutomergeDocHandleState(handle)
+        return new AutomergeDocState(handle)
     }
     delete(id: AnyDocumentId) {
         this.#repo.delete(id)
