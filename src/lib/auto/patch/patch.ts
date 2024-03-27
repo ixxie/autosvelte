@@ -14,7 +14,7 @@ import {
   setProperty,
 } from "./helpers.js";
 
-export function patch<T>(doc: Doc<T>, patch: Patch) {
+export function applyPatch<T>(doc: Doc<T>, patch: Patch) {
   const automerge = isAutomerge(doc);
 
   if (patch.action === "insert") {
@@ -115,13 +115,15 @@ export function patch<T>(doc: Doc<T>, patch: Patch) {
     } else {
       const value: any = getProperty(doc, path.reverse());
 
-      setProperty(
-        doc,
-        path,
-        value.substring(0, Number(index)) +
-        patch.value +
-        value.substring(Number(index)),
-      );
+      if (value) {
+        setProperty(
+          doc,
+          path,
+          value.substring(0, Number(index)) +
+          patch.value +
+          value.substring(Number(index)),
+        );
+      }
     }
 
     return;

@@ -5,17 +5,10 @@
 
 	const { repo } = useRepo<DocSchema>();
 
-	$inspect(repo.docs);
+	$inspect('page', repo.docs);
 </script>
 
-<!--{JSON.stringify(repo.docs)} -->
-
 <h1>my docs</h1>
-{#each repo.docs as doc}
-	{@const id = doc.handle.documentId}
-	{@const title = doc.state?.title ?? 'untitled'}
-	<a href="/{id}">{title}</a>
-{/each}
 
 <button
 	onclick={() => {
@@ -27,3 +20,16 @@
 >
 	new
 </button>
+
+<ul>
+	{#each repo.docs as doc}
+		{@const id = doc.handle.documentId}
+		{#if doc.state}
+			{@const { title } = doc.state}
+			{@const label = title.length > 0 ? title : 'untitled'}
+			<li>
+				<a href="/{id}">{label}</a>
+			</li>
+		{/if}
+	{/each}
+</ul>

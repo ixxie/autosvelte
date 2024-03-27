@@ -1,5 +1,5 @@
-import { AutomergeRepoState } from "./state.svelte";
+import { AutoRepoState } from "./state.svelte";
 
-export interface AutomergeRepoContext<T> {
-    repo: AutomergeRepoState<T>;
+export interface AutoRepoContext<T> {
+    repo: AutoRepoState<T>;
 }

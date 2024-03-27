@@ -1,15 +1,15 @@
 import { Repo, DocHandle, type AnyDocumentId } from '@automerge/automerge-repo';
 
-import { AutomergeDocState } from '../doc';
+import { AutoDocState } from '../doc';
 
-export class AutomergeRepoState<T> {
+export class AutoRepoState<T> {
     #repo: Repo
-    #docs: { [id: string]: AutomergeDocState<T> } = $state({})
+    #docs: { [id: string]: AutoDocState<T> } = $state({})
 
     constructor(config: ConstructorParameters<typeof Repo>[0]) {
         this.#repo = new Repo(config)
         this.#repo.on("document", ({ handle }) => {
-            this.#docs[handle.documentId] = new AutomergeDocState(handle);
+            this.#docs[handle.documentId] = new AutoDocState(handle);
         });
         this.#repo.on("delete-document", ({ documentId }) => {
             delete this.#docs[documentId];
@@ -29,7 +29,7 @@ export class AutomergeRepoState<T> {
     }
     create(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
-        return new AutomergeDocState(handle)
+        return new AutoDocState(handle)
     }
     delete(id: AnyDocumentId) {
         this.#repo.delete(id)

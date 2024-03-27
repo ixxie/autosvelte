@@ -6,43 +6,9 @@ import {
 } from "@automerge/automerge";
 
 import { clone, getProperty, isTextObject } from "./helpers";
-import { patch } from "./patch";
+import { applyPatch } from "./patch";
 
-const pathChanged = (
-    path: Prop[],
-    before: Doc<any>,
-    after: Doc<any>,
-): boolean => {
-    const beforeValue = getProperty(before, path, before);
-    const afterValue = getProperty(after, path, after);
-
-    return JSON.stringify(beforeValue) === JSON.stringify(afterValue);
-};
-
-export const filterRedundantPatches = <T>(
-    patches: Patch[],
-    before: Doc<T>,
-    after: Doc<T>,
-): Patch[] => {
-    return patches.filter((patch) => {
-        if (patch.action === "del" || patch.action === "splice") {
-            const [_, ...path] = [...patch.path].reverse();
-            return !pathChanged(path.reverse(), before, after);
-        }
-
-        if (
-            patch.action === "put" ||
-            patch.action === "insert" ||
-            patch.action === "inc"
-        ) {
-            return !pathChanged(patch.path, before, after);
-        }
-
-        return true;
-    });
-};
-
-export const unpatch = <T>(doc: Doc<T>, patch: Patch): Patch => {
+export const unapplyPatch = <T>(doc: Doc<T>, patch: Patch): Patch => {
     if (patch.action === "insert") {
         return {
             action: "del",
@@ -145,9 +111,9 @@ export const unpatchAll = <T>(beforeDoc: Doc<T>, patches: Patch[]): Patch[] => {
 
     const inverse: Patch[] = [];
 
-    patches.forEach((p) => {
-        inverse.push(unpatch(copy, p));
-        patch(copy, p);
+    clone(patches).forEach((p) => {
+        inverse.push(unapplyPatch(copy, p));
+        applyPatch(copy, p);
     });
 
     return inverse.reverse();

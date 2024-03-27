@@ -2,35 +2,23 @@
 	import { page } from '$app/stores';
 
 	import { useRepo } from '$lib/auto';
+	import { onDestroy } from 'svelte';
 
 	import type { DocSchema } from '../types';
 
 	const { repo } = useRepo<DocSchema>();
 
 	const { id } = $page.params;
+
 	const doc = repo.doc(id);
 
-	let title = $state(doc.state?.title ?? '');
-	let content = $state(doc.state?.content ?? '');
+	let title = doc.prop('title');
+	let content = doc.prop('content');
+
+	onDestroy(() => [doc, title, content].forEach((obj) => obj.cleanup()));
 </script>
 
-<h1>
-	<input type="text" bind:value={title} />
-</h1>
-<textarea bind:value={content} />
-<button
-	onclick={() => {
-		doc.change((doc) => {
-			doc.title = title;
-			doc.content = content;
-		});
-	}}
->
-	Save
-</button>
-
-<h2>result</h2>
-
-<h1>{doc.state?.title}</h1>
-
-<p>{doc.state?.content}</p>
+<h2>
+	<input type="text" bind:value={title.state} />
+</h2>
+<textarea bind:value={content.state} />

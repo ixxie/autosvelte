@@ -1,31 +1,39 @@
 import { DocHandle } from "@automerge/automerge-repo"
-import type { Doc, ChangeFn } from '@automerge/automerge'
+import type { Doc, ChangeFn, Patch, Prop } from '@automerge/automerge'
 
-import { patch as applyPatch } from "../patch";
+import { applyPatch } from "../patch";
+import { AutoTextState } from "..";
 
-export class AutomergeDocState<T> {
+export class AutoDocState<T> {
     readonly handle: DocHandle<T>
-    state: T | undefined = $state(undefined)
+    #read: Doc<T> | undefined;
+    cleanup: () => void
 
     constructor(handle: DocHandle<T>) {
         this.handle = handle;
-        this.handle.doc()
-            .then((doc) => {
-                this.state = doc;
-            })
+        this.#read = this.handle.docSync()
 
-        this.handle.on('change', ({ patches }) => {
-            patches.forEach(
-                (patch) => {
-                    if (this.state) {
-                        applyPatch<T>(this.state, patch)
-                    }
-                }
-            )
+        console.log(this.#read)
+
+        const apply = ({ patches }: { patches: Patch[] }) => {
+            patches.forEach((patch) => applyPatch(this.handle.doc(), patch))
+            this.#read = this.handle.docSync()
+        }
+        this.handle.on('change', apply)
+        this.cleanup = $effect.root(() => () => {
+            this.handle.off('change', apply)
         })
     }
 
     change(callback: ChangeFn<T>) {
         this.handle.change(callback)
+    }
+
+    get state() {
+        return this.#read
+    }
+
+    prop(...path: Prop[]) {
+        return new AutoTextState(this, path)
     }
 }
