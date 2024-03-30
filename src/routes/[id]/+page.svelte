@@ -4,13 +4,15 @@
 	import { useRepo } from '$lib/auto';
 	import { onDestroy } from 'svelte';
 
+	import type { AnyDocumentId } from '@automerge/automerge-repo';
+
 	import type { DocSchema } from '../types';
 
 	const { repo } = useRepo<DocSchema>();
 
 	const { id } = $page.params;
 
-	const doc = repo.doc(id);
+	const doc = repo.find(id as AnyDocumentId);
 
 	let title = doc.prop('title');
 	let content = doc.prop('content');

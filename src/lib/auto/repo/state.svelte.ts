@@ -20,10 +20,6 @@ export class AutoRepoState<T> {
         return Object.values(this.#docs);
     }
 
-    doc(documentId: string) {
-        return this.#docs[documentId];
-    }
-
     clone(clonedHandle: DocHandle<T>) {
         return this.#repo.clone(clonedHandle)
     }
@@ -38,7 +34,12 @@ export class AutoRepoState<T> {
         return this.#repo.export(id)
     }
     find(id: AnyDocumentId) {
-        return this.#repo.find<T>(id)
+        let doc = this.#docs[id];
+        if (!doc) {
+            const handle = this.#repo.find<T>(id)
+            doc = new AutoDocState(handle)
+        }
+        return doc
     }
     import(binary: Uint8Array) {
         return this.#repo.import<T>(binary)
