@@ -1,8 +1,6 @@
 import { DocHandle } from "@automerge/automerge-repo"
 import type { Doc, ChangeFn, Patch, Prop } from '@automerge/automerge'
 
-import { getProperty } from "../patch/helpers"
-
 
 import { applyPatch } from "../patch";
 import { AutoTextState } from "..";

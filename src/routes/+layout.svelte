@@ -4,6 +4,7 @@
 	import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 
 	import type { DocSchema } from './types';
+	import './app.css';
 
 	const { children } = $props();
 
@@ -14,15 +15,3 @@
 </script>
 
 {@render children()}
-
-<style>
-	:global(*) {
-		box-sizing: border-box;
-		margin: 0;
-		padding: 0;
-	}
-
-	:global(html, body) {
-		height: 100%;
-	}
-</style>

@@ -30,7 +30,9 @@ export class AutoRepoState<T> {
     }
     create(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
-        this.#docs[handle.documentId] = new AutoDocState(handle);
+        if (!(handle.documentId in this.#docs)) {
+            this.#docs[handle.documentId] = new AutoDocState(handle);
+        }
         return this.#docs[handle.documentId];
     }
     delete(id: DocumentId) {

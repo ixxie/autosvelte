@@ -9,6 +9,7 @@ export class AutoTextState<T> {
     readonly path: Prop[];
     #doc: AutoDocState<T>
     #read = $derived.by(() => {
+        console.log('derived')
         return getProperty(this.#doc.state, this.path)
     })
 
@@ -18,6 +19,7 @@ export class AutoTextState<T> {
     }
 
     set state(value: string) {
+        console.log('----------')
         console.log("AutoTextState: writing state", value)
         this.#doc.change((doc) => {
             updateText(doc as Doc<unknown>, this.path, value)
@@ -25,7 +27,7 @@ export class AutoTextState<T> {
     }
 
     get state() {
-        console.log("AutoTextState: reading text", this.#read)
+        console.trace("AutoTextState: reading text", this.#read)
         return this.#read
     }
 }
