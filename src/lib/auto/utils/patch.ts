@@ -63,6 +63,8 @@ export function applyPatch<T>(doc: Doc<T>, patch: Patch) {
 
     const value: any = path.length ? getProperty(doc, path.reverse()) : doc;
 
+    console.log(typeof value)
+
     if (typeof value === "string") {
       if (automerge) {
         next.splice(doc, path, index as number, patch.length || 1);
@@ -115,15 +117,13 @@ export function applyPatch<T>(doc: Doc<T>, patch: Patch) {
     } else {
       const value: any = getProperty(doc, path.reverse());
 
-      if (value) {
-        setProperty(
-          doc,
-          path,
-          value.substring(0, Number(index)) +
-          patch.value +
-          value.substring(Number(index)),
-        );
-      }
+      setProperty(
+        doc,
+        path,
+        value.substring(0, Number(index)) +
+        patch.value +
+        value.substring(Number(index)),
+      );
     }
 
     return;

@@ -1,11 +1,9 @@
-import { getProperty } from "../patch/helpers"
-import type { AutoDocState } from "../doc"
+import { getProperty, setProperty } from "$lib/auto/utils"
+import type { AutoDocState } from "$lib/auto/doc"
 
 import type { Prop, Doc } from "@automerge/automerge"
-import { updateText } from "@automerge/automerge/next"
 
-
-export class AutoTextState<T> {
+export class AutoArrayState<T> {
     readonly path: Prop[];
     #doc: AutoDocState<T>
     #read = $derived.by(() => {
@@ -22,7 +20,7 @@ export class AutoTextState<T> {
         console.log('----------')
         console.log("AutoTextState: writing state", value)
         this.#doc.change((doc) => {
-            updateText(doc as Doc<unknown>, this.path, value)
+            setProperty(doc as Doc<unknown>, this.path, value)
         })
     }
 

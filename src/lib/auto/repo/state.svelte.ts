@@ -1,6 +1,6 @@
 import { Repo, DocHandle, type DocumentId } from '@automerge/automerge-repo';
 
-import { AutoDocState } from '../doc';
+import { AutoDocState } from '$lib/auto/doc';
 
 export class AutoRepoState<T> {
     #repo: Repo
@@ -9,6 +9,7 @@ export class AutoRepoState<T> {
     } = $state({})
 
     constructor(config: ConstructorParameters<typeof Repo>[0]) {
+
         this.#repo = new Repo(config)
         this.#repo.on("document", ({ handle }) => {
             if (!(handle.documentId in this.#docs)) {
@@ -19,6 +20,12 @@ export class AutoRepoState<T> {
         this.#repo.on("delete-document", ({ documentId }) => {
             delete this.#docs[documentId];
         });
+
+        let root = localStorage.rootDocUrl
+        if (!root) {
+            const handle = this.#repo.create<{ docs: [] }>({ docs: [] })
+            localStorage.rootDocUrl = root = handle.url
+        }
     }
 
     get docs() {
@@ -31,7 +38,7 @@ export class AutoRepoState<T> {
     create(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
         if (!(handle.documentId in this.#docs)) {
-            this.#docs[handle.documentId] = new AutoDocState(handle);
+            this.#docs[handle.documentId] = new AutoDocState(handle, { logging: false });
         }
         return this.#docs[handle.documentId];
     }
@@ -43,7 +50,7 @@ export class AutoRepoState<T> {
     }
     find(id: DocumentId) {
         const handle = this.#repo.find<T>(id)
-        this.#docs[handle.documentId] = new AutoDocState(handle);
+        this.#docs[handle.documentId] = new AutoDocState(handle, { logging: false });
         return this.#docs[handle.documentId];
     }
     import(binary: Uint8Array) {
