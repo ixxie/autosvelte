@@ -13,7 +13,6 @@
 <button
 	onclick={() => {
 		repo.create({
-			title: '',
 			content: ''
 		});
 	}}
@@ -25,7 +24,8 @@
 	{#each repo.docs as doc}
 		{@const id = doc.handle.documentId}
 		{#if doc.state}
-			{@const { title } = doc.state}
+			{@const { content } = doc.state}
+			{@const title = content?.split('\n')[0]}
 			{@const label = title.length > 0 ? title : 'untitled'}
 			<li>
 				<a href="/{id}">{label}</a>

@@ -4,12 +4,15 @@ import { AutoDocState } from '../doc';
 
 export class AutoRepoState<T> {
     #repo: Repo
-    #docs: { [id: string]: AutoDocState<T> } = $state({})
+    #docs: {
+        [id: string]: AutoDocState<T>
+    } = $state({})
 
     constructor(config: ConstructorParameters<typeof Repo>[0]) {
         this.#repo = new Repo(config)
         this.#repo.on("document", ({ handle }) => {
             this.#docs[handle.documentId] = new AutoDocState(handle);
+            console.log('document event', this.#docs)
         });
         this.#repo.on("delete-document", ({ documentId }) => {
             delete this.#docs[documentId];
@@ -25,7 +28,8 @@ export class AutoRepoState<T> {
     }
     create(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
-        return new AutoDocState(handle)
+        const doc = new AutoDocState(handle)
+        return doc;
     }
     delete(id: AnyDocumentId) {
         this.#repo.delete(id)
@@ -34,7 +38,7 @@ export class AutoRepoState<T> {
         return this.#repo.export(id)
     }
     find(id: AnyDocumentId) {
-        let doc = this.#docs[id];
+        let doc = this.#docs[id as string];
         if (!doc) {
             const handle = this.#repo.find<T>(id)
             doc = new AutoDocState(handle)

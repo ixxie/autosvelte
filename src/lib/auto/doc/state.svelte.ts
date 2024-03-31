@@ -11,13 +11,13 @@ export class AutoDocState<T> {
 
     constructor(handle: DocHandle<T>) {
         this.handle = handle;
-        this.#read = this.handle.docSync()
+        this.handle.doc()
+            .then((doc) => this.#read = doc)
 
-        console.log(this.#read)
-
-        const apply = ({ patches }: { patches: Patch[] }) => {
+        const apply = async ({ patches }: { patches: Patch[] }) => {
+            console.log("AutoDocState: applying patches", patches)
             patches.forEach((patch) => applyPatch(this.handle.doc(), patch))
-            this.#read = this.handle.docSync()
+            this.#read = await this.handle.doc()
         }
         this.handle.on('change', apply)
         this.cleanup = $effect.root(() => () => {
@@ -26,7 +26,8 @@ export class AutoDocState<T> {
     }
 
     change(callback: ChangeFn<T>) {
-        this.handle.change(callback)
+        this.handle.whenReady()
+            .then(() => this.handle.change(callback))
     }
 
     get state() {
