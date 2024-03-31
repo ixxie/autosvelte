@@ -4,7 +4,7 @@
 	import { useRepo } from '$lib/auto';
 	import { onDestroy } from 'svelte';
 
-	import type { AnyDocumentId } from '@automerge/automerge-repo';
+	import type { DocumentId } from '@automerge/automerge-repo';
 
 	import type { DocSchema } from '../types';
 
@@ -12,11 +12,11 @@
 
 	const { id } = $page.params;
 
-	const doc = repo.find(id as AnyDocumentId);
+	const doc = repo.find(id as DocumentId);
 
 	let content = doc.prop('content');
 
-	onDestroy(() => [doc, content].forEach((obj) => obj.cleanup()));
+	onDestroy(() => doc.cleanup());
 </script>
 
 <textarea bind:value={content.state} />

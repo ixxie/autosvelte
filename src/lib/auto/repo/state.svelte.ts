@@ -1,18 +1,20 @@
-import { Repo, DocHandle, type AnyDocumentId } from '@automerge/automerge-repo';
+import { Repo, DocHandle, type DocumentId } from '@automerge/automerge-repo';
 
 import { AutoDocState } from '../doc';
 
 export class AutoRepoState<T> {
     #repo: Repo
     #docs: {
-        [id: string]: AutoDocState<T>
+        [id: DocumentId]: AutoDocState<T>
     } = $state({})
 
     constructor(config: ConstructorParameters<typeof Repo>[0]) {
         this.#repo = new Repo(config)
         this.#repo.on("document", ({ handle }) => {
-            this.#docs[handle.documentId] = new AutoDocState(handle);
-            console.log('document event', this.#docs)
+            if (!(handle.documentId in this.#docs)) {
+                this.#docs[handle.documentId] = new AutoDocState(handle);
+                console.log('document event', this.#docs)
+            }
         });
         this.#repo.on("delete-document", ({ documentId }) => {
             delete this.#docs[documentId];
@@ -28,22 +30,19 @@ export class AutoRepoState<T> {
     }
     create(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
-        const doc = new AutoDocState(handle)
-        return doc;
+        this.#docs[handle.documentId] = new AutoDocState(handle);
+        return this.#docs[handle.documentId];
     }
-    delete(id: AnyDocumentId) {
+    delete(id: DocumentId) {
         this.#repo.delete(id)
     }
-    export(id: AnyDocumentId) {
+    export(id: DocumentId) {
         return this.#repo.export(id)
     }
-    find(id: AnyDocumentId) {
-        let doc = this.#docs[id as string];
-        if (!doc) {
-            const handle = this.#repo.find<T>(id)
-            doc = new AutoDocState(handle)
-        }
-        return doc
+    find(id: DocumentId) {
+        const handle = this.#repo.find<T>(id)
+        this.#docs[handle.documentId] = new AutoDocState(handle);
+        return this.#docs[handle.documentId];
     }
     import(binary: Uint8Array) {
         return this.#repo.import<T>(binary)

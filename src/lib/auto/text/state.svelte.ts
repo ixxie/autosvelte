@@ -8,6 +8,9 @@ import { updateText } from "@automerge/automerge/next"
 export class AutoTextState<T> {
     readonly path: Prop[];
     #doc: AutoDocState<T>
+    #read = $derived.by(() => {
+        return getProperty(this.#doc.state, this.path)
+    })
 
     constructor(doc: AutoDocState<T>, path: Prop[]) {
         this.path = path;
@@ -17,13 +20,12 @@ export class AutoTextState<T> {
     set state(value: string) {
         console.log("AutoTextState: writing state", value)
         this.#doc.change((doc) => {
-            console.log("AutoTextState: updating text")
             updateText(doc as Doc<unknown>, this.path, value)
         })
     }
 
     get state() {
-        console.log("AutoTextState: reading text")
-        return getProperty(this.#doc.state, this.path)
+        console.log("AutoTextState: reading text", this.#read)
+        return this.#read
     }
 }

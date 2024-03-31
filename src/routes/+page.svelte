@@ -4,8 +4,6 @@
 	import type { DocSchema } from './types';
 
 	const { repo } = useRepo<DocSchema>();
-
-	$inspect('page', repo.docs);
 </script>
 
 <h1>my docs</h1>
