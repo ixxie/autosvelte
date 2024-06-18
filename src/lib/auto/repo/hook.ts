@@ -7,13 +7,13 @@ import type { AutoRepoContext } from './types.js';
 import { AutoRepoState } from "./state.svelte.js";
 import { ctx_id } from './ctx.id.js';
 
-export const useRepo = <T>(config?: ConstructorParameters<typeof Repo>[0]) => {
-    const ctx = getContext<AutoRepoContext<T>>(ctx_id) ?? {
-        repo: new AutoRepoState<T>(config ?? {
+export const useRepo = (config?: ConstructorParameters<typeof Repo>[0]) => {
+    const ctx = getContext<AutoRepoContext>(ctx_id) ?? {
+        repo: new AutoRepoState(config ?? {
             storage: new IndexedDBStorageAdapter(),
             network: []
         })
     }
-    setContext<AutoRepoContext<T>>(ctx_id, ctx)
+    setContext<AutoRepoContext>(ctx_id, ctx)
     return ctx;
 }

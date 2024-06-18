@@ -2,10 +2,10 @@ import { Repo, DocHandle, type DocumentId } from '@automerge/automerge-repo';
 
 import { AutoDocState } from '$lib/auto/doc';
 
-export class AutoRepoState<T> {
+export class AutoRepoState {
     #repo: Repo
     #docs: {
-        [id: DocumentId]: AutoDocState<T>
+        [id: DocumentId]: AutoDocState<unknown>
     } = $state({})
 
     constructor(config: ConstructorParameters<typeof Repo>[0]) {
@@ -32,13 +32,13 @@ export class AutoRepoState<T> {
         return Object.values(this.#docs);
     }
 
-    clone(clonedHandle: DocHandle<T>) {
+    clone<T>(clonedHandle: DocHandle<T>) {
         return this.#repo.clone(clonedHandle)
     }
-    create(initialValue?: T) {
+    create<T>(initialValue?: T) {
         const handle = this.#repo.create<T>(initialValue)
         if (!(handle.documentId in this.#docs)) {
-            this.#docs[handle.documentId] = new AutoDocState(handle, { logging: false });
+            this.#docs[handle.documentId] = new AutoDocState<T>(handle, { logging: false });
         }
         return this.#docs[handle.documentId];
     }
@@ -48,12 +48,13 @@ export class AutoRepoState<T> {
     export(id: DocumentId) {
         return this.#repo.export(id)
     }
-    find(id: DocumentId) {
+    find<T>(id: DocumentId) {
         const handle = this.#repo.find<T>(id)
-        this.#docs[handle.documentId] = new AutoDocState(handle, { logging: false });
-        return this.#docs[handle.documentId];
+        const doc = new AutoDocState<T>(handle, { logging: false });
+        this.#docs[handle.documentId] = doc
+        return doc;
     }
-    import(binary: Uint8Array) {
+    import<T>(binary: Uint8Array) {
         return this.#repo.import<T>(binary)
     }
 }

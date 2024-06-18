@@ -1,10 +1,7 @@
 import { DocHandle } from "@automerge/automerge-repo"
-import type { Doc, ChangeFn, Patch, Prop } from '@automerge/automerge'
-
+import type { Doc, ChangeFn, Patch } from '@automerge/automerge'
 
 import { applyPatch } from "$lib/auto/utils";
-
-import { AutoTextState, AutoArrayState } from "$lib/auto/props";
 
 export class AutoDocState<T> {
     readonly handle: DocHandle<T>
@@ -42,10 +39,6 @@ export class AutoDocState<T> {
 
     get state() {
         return this.#read
-    }
-
-    prop(...path: Prop[]) {
-        return new AutoTextState(this, path)
     }
 
     log(...messages: any[]) {

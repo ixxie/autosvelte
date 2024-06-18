@@ -1,9 +1,10 @@
-import { getProperty } from "$lib/auto/utils"
-import type { AutoDocState } from "$lib/auto/doc"
-
 import type { Prop, Doc } from "@automerge/automerge"
+import type { DocumentId } from "@automerge/automerge-repo";
 import { updateText } from "@automerge/automerge/next"
 
+import { getProperty } from "$lib/auto/utils"
+import { useRepo } from "$lib/auto/repo";
+import type { AutoDocState } from "$lib/auto/doc"
 
 export class AutoTextState<T> {
     readonly path: Prop[];
@@ -15,13 +16,14 @@ export class AutoTextState<T> {
         : getProperty(this.#doc.state, this.path)
     )
 
-    constructor(doc: AutoDocState<T>, path: Prop[]) {
+    constructor(...args: [DocumentId, ...Array<Prop>]) {
+        const [docId, ...path] = args;
+        const { repo } = useRepo();
         this.path = path;
-        this.#doc = doc
+        this.#doc = repo.find<T>(docId)
     }
 
     set state(value: string) {
-        console.log('----------')
         console.log("AutoTextState: writing state", value)
         this.#buffer = value
         this.#pending++

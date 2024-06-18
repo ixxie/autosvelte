@@ -1,25 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { auto } from '$lib/auto';
 
-	import { useRepo } from '$lib/auto';
-	import { onDestroy } from 'svelte';
+	const { doc_id } = $page.params;
 
-	import type { DocumentId } from '@automerge/automerge-repo';
-
-	import type { DocSchema } from '../types';
-
-	const { repo } = useRepo<DocSchema>();
-
-	const { id } = $page.params;
-
-	const doc = repo.find(id as DocumentId);
-
-	let content = doc.prop('content');
-
-	onDestroy(() => doc.cleanup());
+	const foobar = auto(doc_id, 'foo', 'bar');
 </script>
 
-<textarea bind:value={content.state} />
+<textarea use:foobar.action />
+
+<p>
+	{foobar.state}
+</p>
 
 <style>
 	textarea {
